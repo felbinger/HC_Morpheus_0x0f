@@ -1,4 +1,5 @@
 <?php
+  session_start();
   $conn = new mysqli("hc-db", "0x0f", "0RQ7wl51Semdbo7UhoV2", "wordpress");
   if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());

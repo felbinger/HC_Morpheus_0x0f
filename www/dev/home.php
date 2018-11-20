@@ -1,8 +1,6 @@
 <?php
-  if (session_status() == PHP_SESSION_NONE) {
-    die("401 not authorized");
-  }
-  if ($_SESSION["authorized"] == "False") {
+  session_start();
+  if ($_SESSION["authorized"] != "True") {
     die("401 not authorized");
   }
 ?>
